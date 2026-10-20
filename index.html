@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kuiz Kebersihan Diri - Pendidikan Khas Tahun 3</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <!-- HTML2Canvas for Certificate Download -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Fredoka', sans-serif;
+            background: linear-gradient(135deg, #e0f2fe 0%, #f0fdf4 100%);
+            min-height: 100vh;
+        }
+        .bounce-gentle {
+            animation: bounce 2s infinite;
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+        .pulse-slow {
+            animation: pulse 2.5s infinite;
+        }
+        .badge-glow {
+            box-shadow: 0 0 15px rgba(251, 191, 36, 0.6);
+        }
+    </style>
+</head>
+<body class="text-slate-800 flex flex-col min-h-screen">
+
+    <div id="app" class="flex-grow flex flex-col justify-center items-center p-3 sm:p-6">
+        <div class="w-full max-w-2xl bg-white rounded-3xl shadow-2xl border-4 border-sky-300 overflow-hidden relative">
+
+            <header class="bg-gradient-to-r from-sky-400 to-teal-400 p-4 text-white text-center relative shadow-md">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-2">
+                        <span class="bg-white/20 p-2 rounded-2xl text-2xl"><i class="fa-solid fa-shower"></i></span>
+                        <div class="text-left">
+                            <h1 class="font-bold text-lg sm:text-xl leading-tight">Pengurusan Diri Unit 2</h1>
+                            <p class="text-xs sm:text-sm text-sky-100 font-medium">Kebersihan Menjamin Kesihatan Diri</p>
+                        </div>
+                    </div>
+                    <button onclick="toggleAudio()" id="audio-toggle" class="bg-white/20 hover:bg-white/30 text-white p-2.5 rounded-full text-lg transition">
+                        <i class="fa-solid fa-volume-high" id="audio-icon"></i>
+                    </button>
+                </div>
+            </header>
+
+            <main class="p-4 sm:p-6">
+
+                <!-- 1. REGISTRATION SCREEN -->
+                <div id="screen-register" class="space-y-6 text-center">
+                    <div class="bg-sky-50 border-2 border-sky-200 rounded-2xl p-5 shadow-inner">
+                        <div class="w-24 h-24 bg-sky-200 rounded-full mx-auto flex items-center justify-center text-sky-600 text-5xl mb-3 bounce-gentle">
+                            <i class="fa-solid fa-sparkles"></i>
+                        </div>
+                        <h2 class="text-2xl font-bold text-sky-800">Misi Kebersihan Diri!</h2>
+                        <p class="text-slate-600 mt-1 text-sm sm:text-base">Mari bantu Wira Kebersihan menyelesaikan tugas menjaga tuala dan span mandi!</p>
+                    </div>
+
+                    <form id="form-register" onsubmit="startGame(event)" class="space-y-4 text-left max-w-md mx-auto">
+                        <div>
+                            <label class="block text-sm font-bold text-slate-700 mb-1"><i class="fa-solid fa-user text-sky-500 mr-2"></i>Nama Murid:</label>
+                            <input type="text" id="student-name" required placeholder="Masukkan nama kamu..." class="w-full px-4 py-3 rounded-xl border-2 border-slate-300 focus:border-sky-500 focus:ring-2 focus:ring-sky-200 outline-none text-lg font-semibold transition">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold text-slate-700 mb-1"><i class="fa-solid fa-school text-sky-500 mr-2"></i>Nama Kelas:</label>
+                            <input type="text" id="student-class" required placeholder="Contoh: 3 Cerdik / PPKI 3" class="w-full px-4 py-3 rounded-xl border-2 border-slate-300 focus:border-sky-500 focus:ring-2 focus:ring-sky-200 outline-none text-lg font-semibold transition">
+                        </div>
+
+                        <button type="submit" class="w-full bg-gradient-to-r from-emerald-400 to-teal-500 hover:from-emerald-500 hover:to-teal-600 text-white font-bold text-xl py-4 rounded-2xl shadow-lg transform active:scale-95 transition flex items-center justify-center gap-2">
+                            <span>Mula Misi!</span>
+                            <i class="fa-solid fa-circle-play"></i>
+                        </button>
+                    </form>
+                </div>
+
+                <!-- 2. GAME DASHBOARD / LEVEL SELECT -->
+                <div id="screen-story" class="hidden space-y-5">
+                    <!-- Status Header -->
+                    <div class="flex justify-between items-center bg-slate-100 p-3 rounded-2xl border border-slate-200">
+                        <div class="flex items-center gap-2">
+                            <span class="text-slate-500 text-xs font-bold uppercase">Nyawa:</span>
+                            <div id="hearts-container" class="flex text-red-500 text-lg gap-1"></div>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="text-slate-500 text-xs font-bold uppercase">Markah:</span>
+                            <span id="score-display" class="bg-amber-400 text-slate-900 px-3 py-0.5 rounded-full font-bold text-sm">0</span>
+                        </div>
+                    </div>
+
+                    <!-- Story Box -->
+                    <div id="story-box" class="bg-amber-50 border-2 border-amber-300 p-4 rounded-2xl flex gap-3 items-center">
+                        <div class="text-3xl text-amber-500"><i class="fa-solid fa-book-open"></i></div>
+                        <div>
+                            <h3 id="story-title" class="font-bold text-amber-900 text-base">Jalan Cerita</h3>
+                            <p id="story-text" class="text-sm text-amber-800">Setiap hari kita perlu menjaga kebersihan alatan mandi supaya kekal bersih dan badan sihat!</p>
+                        </div>
+                    </div>
+
+                    <!-- Level Progression Map -->
+                    <div class="space-y-3">
+                        <h4 class="font-bold text-slate-700 text-sm uppercase tracking-wide">Peringkat Misi:</h4>
+                        <div id="levels-container" class="grid grid-cols-1 gap-3"></div>
+                    </div>
+
+                    <!-- Action Button -->
+                    <button id="btn-next-question" onclick="startLevelQuiz()" class="w-full bg-sky-500 hover:bg-sky-600 text-white font-bold text-lg py-3 rounded-xl shadow-md transition flex items-center justify-center gap-2">
+                        <span>Masuk Misi Ini</span>
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </div>
+
+                <!-- 3. QUESTION SCREEN -->
+                <div id="screen-quiz" class="hidden space-y-5">
+                    <!-- Top Info Bar -->
+                    <div class="flex justify-between items-center bg-sky-50 p-3 rounded-2xl border border-sky-200">
+                        <span id="quiz-level-badge" class="bg-sky-600 text-white text-xs font-bold px-3 py-1 rounded-full">Tahap 1</span>
+                        <div class="flex items-center gap-4 text-sm font-bold">
+                            <div class="text-red-500 flex gap-1" id="quiz-hearts"></div>
+                            <div class="text-amber-600"><i class="fa-solid fa-star text-amber-400 mr-1"></i><span id="quiz-score">0</span></div>
+                        </div>
+                    </div>
+
+                    <!-- Question Container -->
+                    <div class="bg-white border-2 border-sky-100 rounded-2xl p-4 sm:p-5 shadow-sm text-center">
+                        <p class="text-xs font-bold text-sky-500 mb-1" id="question-number">Soalan 1 / 3</p>
+                        <h3 id="question-text" class="text-lg sm:text-xl font-bold text-slate-800 mb-4">Apakah soalan di sini?</h3>
+                        
+                        <!-- Optional Illustration Container -->
+                        <div id="question-graphic" class="my-3 flex justify-center"></div>
+
+                        <!-- Options List -->
+                        <div id="options-container" class="grid grid-cols-1 gap-3 mt-4"></div>
+                    </div>
+
+                    <!-- Feedback Box -->
+                    <div id="feedback-box" class="hidden p-3 rounded-xl text-center font-bold text-sm"></div>
+                </div>
+
+                <!-- 4. LEVEL COMPLETE BADGE SCREEN -->
+                <div id="screen-badge" class="hidden text-center space-y-5 py-4">
+                    <div class="bounce-gentle">
+                        <div id="badge-icon-container" class="w-28 h-28 mx-auto bg-amber-100 rounded-full flex items-center justify-center text-amber-500 text-6xl border-4 border-amber-300 badge-glow">
+                            <i class="fa-solid fa-award"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <h2 class="text-2xl font-bold text-slate-800">Tahniah! Tahap Selesai!</h2>
+                        <p class="text-slate-600 text-sm mt-1">Kamu telah mendapat Lencana Kebersihan:</p>
+                        <p id="badge-name" class="text-xl font-bold text-amber-600 mt-2">Lencana Tuala Bersih</p>
+                    </div>
+                    <button onclick="continueAfterBadge()" class="bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-lg px-8 py-3 rounded-2xl shadow-lg transition">
+                        Teruskan Misi <i class="fa-solid fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+
+                <!-- 5. GAME OVER SCREEN -->
+                <div id="screen-gameover" class="hidden text-center space-y-5 py-6">
+                    <div class="w-24 h-24 bg-red-100 rounded-full mx-auto flex items-center justify-center text-red-500 text-5xl">
+                        <i class="fa-solid fa-heart-crack"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-2xl font-bold text-red-600">Alamak! Nyawa Dah Habis</h2>
+                        <p class="text-slate-600 mt-1">Jangan putus asa! Cuba lagi sekali untuk mendapatkan sijil kamu.</p>
+                    </div>
+                    <button onclick="restartGame()" class="bg-sky-500 hover:bg-sky-600 text-white font-bold text-lg px-8 py-3 rounded-2xl shadow-lg transition">
+                        Cuba Lagi <i class="fa-solid fa-rotate-right ml-2"></i>
+                    </button>
+                </div>
+
+                <!-- 6. CERTIFICATE SCREEN -->
+                <div id="screen-certificate" class="hidden space-y-4">
+                    <div class="text-center">
+                        <h2 class="text-2xl font-bold text-emerald-600">Tahniah! Misi Selesai! 🎉</h2>
+                        <p class="text-slate-600 text-sm">Berikut adalah Sijil Pencapaian Digital Kamu:</p>
+                    </div>
+
+                    <!-- Printable Certificate Container -->
+                    <div id="certificate-card" class="bg-gradient-to-br from-amber-50 via-white to-sky-50 border-8 border-amber-300 p-5 rounded-2xl shadow-xl relative text-center">
+                        <!-- Watermark / Decorative Corners -->
+                        <div class="absolute top-2 left-2 text-amber-300 text-2xl"><i class="fa-solid fa-star"></i></div>
+                        <div class="absolute top-2 right-2 text-amber-300 text-2xl"><i class="fa-solid fa-star"></i></div>
+                        <div class="absolute bottom-2 left-2 text-amber-300 text-2xl"><i class="fa-solid fa-star"></i></div>
+                        <div class="absolute bottom-2 right-2 text-amber-300 text-2xl"><i class="fa-solid fa-star"></i></div>
+
+                        <div class="border-2 border-dashed border-amber-200 p-4 rounded-xl">
+                            <p class="text-xs uppercase font-bold text-slate-400 tracking-widest">Kementerian Pendidikan Malaysia</p>
+                            <p class="text-xs font-semibold text-sky-700">Pendidikan Khas KSSR Tahun 3</p>
+                            
+                            <h3 class="text-2xl font-black text-amber-600 my-2 uppercase tracking-wide">Sijil Pencapaian Digital</h3>
+                            <p class="text-xs text-slate-500">Dengan ini disahkan bahawa</p>
+
+                            <!-- Student Details -->
+                            <p id="cert-name" class="text-xl font-bold text-slate-800 my-1 underline decoration-sky-400">NAMA MURID</p>
+                            <p id="cert-class" class="text-xs font-semibold text-slate-600">Kelas: <span id="cert-class-val">3 CERDIK</span></p>
+
+                            <p class="text-xs text-slate-600 mt-3">Telah berjaya menyempurnakan Kuiz Interaktif:</p>
+                            <p class="text-sm font-bold text-teal-700">"Kebersihan Menjamin Kesihatan Diri"</p>
+
+                            <!-- Badges Earned -->
+                            <div class="flex justify-center gap-3 my-3">
+                                <div class="text-center">
+                                    <div class="w-10 h-10 bg-sky-100 rounded-full flex items-center justify-center text-sky-600 mx-auto text-lg border border-sky-300"><i class="fa-solid fa-mattress-pillow"></i></div>
+                                    <p class="text-[10px] font-bold text-slate-600 mt-0.5">Tuala</p>
+                                </div>
+                                <div class="text-center">
+                                    <div class="w-10 h-10 bg-pink-100 rounded-full flex items-center justify-center text-pink-500 mx-auto text-lg border border-pink-300"><i class="fa-solid fa-soap"></i></div>
+                                    <p class="text-[10px] font-bold text-slate-600 mt-0.5">Span</p>
+                                </div>
+                                <div class="text-center">
+                                    <div class="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center text-emerald-600 mx-auto text-lg border border-emerald-300"><i class="fa-solid fa-crown"></i></div>
+                                    <p class="text-[10px] font-bold text-slate-600 mt-0.5">Wira</p>
+                                </div>
+                            </div>
+
+                            <!-- Score and Date -->
+                            <div class="flex justify-between items-end border-t border-amber-200 pt-3 text-left">
+                                <div>
+                                    <p class="text-[10px] text-slate-400">Jumlah Markah:</p>
+                                    <p id="cert-score" class="text-lg font-bold text-amber-600">90 / 90</p>
+                                </div>
+                                <div class="text-right">
+                                    <p class="text-[10px] text-slate-400">Tarikh:</p>
+                                    <p id="cert-date" class="text-xs font-semibold text-slate-700">20/10/2026</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Certificate Actions -->
+                    <div class="flex gap-2">
+                        <button onclick="downloadCertificate()" class="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3 rounded-xl shadow transition flex items-center justify-center gap-2 text-sm">
+                            <i class="fa-solid fa-download"></i> Simpan Sijil
+                        </button>
+                        <button onclick="restartGame()" class="flex-1 bg-sky-500 hover:bg-sky-600 text-white font-bold py-3 rounded-xl shadow transition flex items-center justify-center gap-2 text-sm">
+                            <i class="fa-solid fa-rotate-right"></i> Main Lagi
+                        </button>
+                    </div>
+                </div>
+
+            </main>
+        </div>
+    </div>
+
+    <script>
+        // Game State Variables
+        let studentData = { name: '', class: '' };
+        let currentLevel = 0; // 0, 1, 2
+        let currentQuestionIdx = 0; // 0, 1, 2
+        let score = 0;
+        let lives = 3;
+        let audioEnabled = true;
+
+        // Level Details & Storyline with tailored visual illustrations
+        const levels = [
+            {
+                id: 1,
+                title: "Tahap 1: Pengurusan Tuala",
+                badgeName: "Lencana Tuala Bersih & Kemas",
+                badgeIcon: "fa-mattress-pillow",
+                color: "sky",
+                story: "Siti baru selesai mandi. Tuala yang telah digunakan perlu dibersihkan dan disimpan dengan betul mengikut langkah yang betul!",
+                questions: [
+                    {
+                        q: "Apakah langkah PERTAMA untuk membersihkan tuala yang kotor?",
+                        graphic: `
+                            <div class="p-4 bg-sky-50 rounded-2xl border-2 border-sky-200 flex flex-col items-center justify-center space-y-2 w-full max-w-sm">
+                                <svg class="w-24 h-24 text-sky-500 animate-pulse" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <!-- Washing Machine SVG -->
+                                    <rect x="15" y="10" width="70" height="80" rx="10" fill="#38BDF8" stroke="#0284C7" stroke-width="4"/>
+                                    <circle cx="50" cy="55" r="25" fill="#E0F2FE" stroke="#0284C7" stroke-width="4"/>
+                                    <circle cx="50" cy="55" r="18" fill="#7DD3FC"/>
+                                    <!-- Water swirls -->
+                                    <path d="M 38 55 Q 44 48 50 55 T 62 55" stroke="#0284C7" stroke-width="3" stroke-linecap="round" fill="none"/>
+                                    <circle cx="30" cy="22" r="4" fill="#FFFFFF"/>
+                                    <circle cx="42" cy="22" r="3" fill="#FFFFFF"/>
+                                    <rect x="60" y="20" width="15" height="5" rx="2" fill="#0284C7"/>
+                                </svg>
+                                <span class="text-xs font-bold text-sky-700 bg-sky-200 px-3 py-1 rounded-full"><i class="fa-solid fa-soap mr-1"></i>Langkah 1: Basuh Tuala</span>
+                            </div>`,
+                        options: [
+                            { text: "Cuci tuala sehingga bersih", correct: true },
+                            { text: "Simpan tuala dalam almari terus", correct: false },
+                            { text: "Biar tuala di atas lantai", correct: false }
+                        ]
+                    },
+                    {
+                        q: "Selepas cuci tuala, apakah yang perlu dilakukan seterusnya?",
+                        graphic: `
+                            <div class="p-4 bg-amber-50 rounded-2xl border-2 border-amber-200 flex flex-col items-center justify-center space-y-2 w-full max-w-sm">
+                                <svg class="w-24 h-24 text-amber-500" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <!-- Sun and Towel Drying SVG -->
+                                    <circle cx="25" cy="25" r="12" fill="#FBBF24"/>
+                                    <path d="M25 5 V10 M25 40 V45 M5 25 H10 M40 25 H45 M11 11 L15 15 M35 35 L39 39 M11 39 L15 35 M35 11 L39 15" stroke="#F59E0B" stroke-width="3" stroke-linecap="round"/>
+                                    <!-- Clothesline & Towel -->
+                                    <line x1="10" y1="50" x2="90" y2="50" stroke="#78350F" stroke-width="3" stroke-dasharray="4 2"/>
+                                    <rect x="40" y="50" width="35" height="40" rx="3" fill="#38BDF8" stroke="#0284C7" stroke-width="3"/>
+                                    <!-- Pegs -->
+                                    <rect x="43" y="46" width="4" height="8" fill="#F59E0B"/>
+                                    <rect x="68" y="46" width="4" height="8" fill="#F59E0B"/>
+                                </svg>
+                                <span class="text-xs font-bold text-amber-800 bg-amber-200 px-3 py-1 rounded-full"><i class="fa-solid fa-sun mr-1"></i>Langkah 2: Jemur Tuala</span>
+                            </div>`,
+                        options: [
+                            { text: "Jemur tuala di bawah matahari", correct: true },
+                            { text: "Terus lipat tuala yang basah", correct: false },
+                            { text: "Buang tuala ke dalam tong sampah", correct: false }
+                        ]
+                    },
+                    {
+                        q: "Setelah tuala KERING, apa yang perlu kita buat sebelum menyimpan?",
+                        graphic: `
+                            <div class="p-4 bg-emerald-50 rounded-2xl border-2 border-emerald-200 flex flex-col items-center justify-center space-y-2 w-full max-w-sm">
+                                <svg class="w-24 h-24 text-emerald-500" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <!-- Folded Towels & Wardrobe SVG -->
+                                    <rect x="15" y="10" width="70" height="80" rx="6" fill="#FEF3C7" stroke="#D97706" stroke-width="3"/>
+                                    <line x1="15" y1="50" x2="85" y2="50" stroke="#D97706" stroke-width="3"/>
+                                    <!-- Folded Towel Stack 1 -->
+                                    <rect x="25" y="32" width="50" height="12" rx="4" fill="#38BDF8" stroke="#0284C7" stroke-width="2"/>
+                                    <rect x="25" y="22" width="50" height="12" rx="4" fill="#F43F5E" stroke="#BE123C" stroke-width="2"/>
+                                    <!-- Folded Towel Stack 2 -->
+                                    <rect x="25" y="70" width="50" height="12" rx="4" fill="#10B981" stroke="#047857" stroke-width="2"/>
+                                    <rect x="25" y="60" width="50" height="12" rx="4" fill="#F59E0B" stroke="#B45309" stroke-width="2"/>
+                                </svg>
+                                <span class="text-xs font-bold text-emerald-800 bg-emerald-200 px-3 py-1 rounded-full"><i class="fa-solid fa-box-archive mr-1"></i>Langkah 3 & 4: Lipat & Simpan</span>
+                            </div>`,
+                        options: [
+                            { text: "Angkat, lipat dan simpan di dalam almari", correct: true },
+                            { text: "Biarkan tuala di ampaian seminggu", correct: false },
+                            { text: "Gantung di dalam bilik air yang basah", correct: false }
+                        ]
+                    }
+                ]
+            },
+            {
+                id: 2,
+                title: "Tahap 2: Pengurusan Span Mandi",
+                badgeName: "Lencana Span Mandi Suci",
+                badgeIcon: "fa-soap",
+                color: "pink",
+                story: "Ahmad suka menggunakan span mandi untuk membersihkan badan. Mari bantu Ahmad menjaga span mandinya!",
+                questions: [
+                    {
+                        q: "Bagaimanakah cara membersihkan span mandi selepas digunakan?",
+                        graphic: `
+                            <div class="p-4 bg-sky-50 rounded-2xl border-2 border-sky-200 flex flex-col items-center justify-center space-y-2 w-full max-w-sm">
+                                <svg class="w-24 h-24 text-sky-500" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <!-- Water Tap & Sponge SVG -->
+                                    <path d="M 20 20 H 50 V 35 H 40 V 45 H 30 V 35 H 20 Z" fill="#94A3B8" stroke="#475569" stroke-width="2"/>
+                                    <!-- Water Flow -->
+                                    <path d="M 33 45 L 30 75 M 37 45 L 40 75" stroke="#38BDF8" stroke-width="3" stroke-dasharray="6 3"/>
+                                    <!-- Sponge -->
+                                    <rect x="25" y="65" width="45" height="25" rx="8" fill="#FBBF24" stroke="#D97706" stroke-width="3"/>
+                                    <circle cx="35" cy="73" r="2.5" fill="#D97706"/>
+                                    <circle cx="50" cy="78" r="3" fill="#D97706"/>
+                                    <circle cx="60" cy="72" r="2" fill="#D97706"/>
+                                    <!-- Bubbles -->
+                                    <circle cx="20" cy="60" r="4" fill="#E0F2FE" stroke="#38BDF8" stroke-width="1.5"/>
+                                    <circle cx="68" cy="58" r="5" fill="#E0F2FE" stroke="#38BDF8" stroke-width="1.5"/>
+                                </svg>
+                                <span class="text-xs font-bold text-sky-800 bg-sky-200 px-3 py-1 rounded-full"><i class="fa-solid fa-faucet-drip mr-1"></i>Cuci Span Dengan Air</span>
+                            </div>`,
+                        options: [
+                            { text: "Cuci span mandi dengan air sehingga bersih", correct: true },
+                            { text: "Simpan span mandi yang penuh sabun", correct: false },
+                            { text: "Biarkan span di atas lantai bilik air", correct: false }
+                        ]
+                    },
+                    {
+                        q: "Selepas mencuci span mandi, apakah langkah seterusnya?",
+                        graphic: `
+                            <div class="p-4 bg-pink-50 rounded-2xl border-2 border-pink-200 flex flex-col items-center justify-center space-y-2 w-full max-w-sm">
+                                <svg class="w-24 h-24 text-pink-500" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <!-- Squeezing Sponge SVG -->
+                                    <!-- Hands / Squeezing action -->
+                                    <rect x="30" y="35" width="40" height="30" rx="12" fill="#F59E0B" stroke="#B45309" stroke-width="3"/>
+                                    <ellipse cx="50" cy="50" rx="12" ry="18" fill="#FBBF24"/>
+                                    <!-- Water Drops falling -->
+                                    <path d="M 42 70 Q 42 78 40 82 Q 38 78 38 70 Z" fill="#38BDF8"/>
+                                    <path d="M 50 72 Q 50 82 48 86 Q 46 82 46 72 Z" fill="#38BDF8"/>
+                                    <path d="M 58 70 Q 58 78 56 82 Q 54 78 54 70 Z" fill="#38BDF8"/>
+                                </svg>
+                                <span class="text-xs font-bold text-pink-800 bg-pink-200 px-3 py-1 rounded-full"><i class="fa-solid fa-hand-holding-droplet mr-1"></i>Perah Span Mandi</span>
+                            </div>`,
+                        options: [
+                            { text: "Perah span mandi sehingga kering airnya", correct: true },
+                            { text: "Gunting span mandi menjadi kecil", correct: false },
+                            { text: "Rendam span dalam sabun seharian", correct: false }
+                        ]
+                    },
+                    {
+                        q: "Di manakah span mandi yang telah diperah sepatutnya disimpan?",
+                        graphic: `
+                            <div class="p-4 bg-purple-50 rounded-2xl border-2 border-purple-200 flex flex-col items-center justify-center space-y-2 w-full max-w-sm">
+                                <svg class="w-24 h-24 text-purple-500" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <!-- Hanging Sponge SVG -->
+                                    <!-- Hook -->
+                                    <path d="M 50 15 C 50 5, 65 5, 65 18 C 65 25, 50 25, 50 35" fill="none" stroke="#64748B" stroke-width="4" stroke-linecap="round"/>
+                                    <circle cx="50" cy="15" r="3" fill="#64748B"/>
+                                    <!-- Loop string -->
+                                    <path d="M 50 35 L 50 50" stroke="#71717A" stroke-width="2" stroke-dasharray="3 2"/>
+                                    <!-- Sponge hanging -->
+                                    <rect x="32" y="50" width="36" height="40" rx="8" fill="#FBBF24" stroke="#D97706" stroke-width="3"/>
+                                    <circle cx="42" cy="60" r="2.5" fill="#D97706"/>
+                                    <circle cx="52" cy="72" r="3" fill="#D97706"/>
+                                    <circle cx="40" cy="80" r="2" fill="#D97706"/>
+                                </svg>
+                                <span class="text-xs font-bold text-purple-800 bg-purple-200 px-3 py-1 rounded-full"><i class="fa-solid fa-shower mr-1"></i>Gantungkan Span</span>
+                            </div>`,
+                        options: [
+                            { text: "Gantungkan di tempat gantung khas", correct: true },
+                            { text: "Letak di dalam almari baju", correct: false },
+                            { text: "Baling ke luar rumah", correct: false }
+                        ]
+                    }
+                ]
+            },
+            {
+                id: 3,
+                title: "Tahap 3: Amalan Kesihatan Diri",
+                badgeName: "Lencana Wira Kebersihan Diri",
+                badgeIcon: "fa-crown",
+                color: "emerald",
+                story: "Mari uji kefahaman kamu tentang kebersihan alatan diri secara keseluruhan untuk menjadi Wira Kesihatan!",
+                questions: [
+                    {
+                        q: "Mengapakah kita perlu menjaga kebersihan tuala dan span mandi?",
+                        graphic: `
+                            <div class="p-4 bg-teal-50 rounded-2xl border-2 border-teal-200 flex flex-col items-center justify-center space-y-2 w-full max-w-sm">
+                                <svg class="w-24 h-24 text-teal-500" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <!-- Healthy Shield & Bacteria Protection SVG -->
+                                    <path d="M 50 15 L 80 28 V 50 C 80 70 50 88 50 88 C 50 88 20 70 20 50 V 28 L 50 15 Z" fill="#10B981" stroke="#047857" stroke-width="3"/>
+                                    <!-- Sparkles/Stars inside shield -->
+                                    <path d="M 50 32 L 53 42 L 63 45 L 53 48 L 50 58 L 47 48 L 37 45 L 47 42 Z" fill="#FFFFFF"/>
+                                    <circle cx="50" cy="68" r="4" fill="#FEF08A"/>
+                                </svg>
+                                <span class="text-xs font-bold text-teal-800 bg-teal-200 px-3 py-1 rounded-full"><i class="fa-solid fa-shield-halved mr-1"></i>Badan Sihat & Terhindar Kuman</span>
+                            </div>`,
+                        options: [
+                            { text: "Supaya badan kita sihat dan terhindar kuman", correct: true },
+                            { text: "Supaya alatan nampak buruk", correct: false },
+                            { text: "Supaya dipuji oleh kawan sahaja", correct: false }
+                        ]
+                    },
+                    {
+                        q: "Apakah yang akan berlaku jika tuala basah disimpan di dalam almari?",
+                        graphic: `
+                            <div class="p-4 bg-red-50 rounded-2xl border-2 border-red-200 flex flex-col items-center justify-center space-y-2 w-full max-w-sm">
+                                <svg class="w-24 h-24 text-red-500" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <!-- Moldy / Germ Towel SVG -->
+                                    <rect x="25" y="25" width="50" height="55" rx="5" fill="#94A3B8" stroke="#475569" stroke-width="3"/>
+                                    <!-- Mold spots -->
+                                    <circle cx="38" cy="40" r="6" fill="#15803D" opacity="0.8"/>
+                                    <circle cx="55" cy="48" r="8" fill="#15803D" opacity="0.8"/>
+                                    <circle cx="42" cy="62" r="5" fill="#15803D" opacity="0.8"/>
+                                    <circle cx="62" cy="65" r="4" fill="#15803D" opacity="0.8"/>
+                                    <!-- Bad odor lines -->
+                                    <path d="M 35 18 Q 30 12 35 6" stroke="#15803D" stroke-width="2" fill="none"/>
+                                    <path d="M 50 20 Q 45 12 50 5" stroke="#15803D" stroke-width="2" fill="none"/>
+                                    <path d="M 65 18 Q 60 12 65 6" stroke="#15803D" stroke-width="2" fill="none"/>
+                                </svg>
+                                <span class="text-xs font-bold text-red-800 bg-red-200 px-3 py-1 rounded-full"><i class="fa-solid fa-bug mr-1"></i>Berbau Busuk & Tumbuh Kulat</span>
+                            </div>`,
+                        options: [
+                            { text: "Tuala akan berbau busuk dan tumbuh kulat", correct: true },
+                            { text: "Tuala akan menjadi lebih wangi", correct: false },
+                            { text: "Tuala bertukar warna menjadi emas", correct: false }
+                        ]
+                    },
+                    {
+                        q: "Pilih amalan yang BETUL di bawah:",
+                        graphic: `
+                            <div class="p-4 bg-indigo-50 rounded-2xl border-2 border-indigo-200 flex flex-col items-center justify-center space-y-2 w-full max-w-sm">
+                                <svg class="w-24 h-24 text-indigo-500" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <!-- Thumbs Up & Clean Towel SVG -->
+                                    <circle cx="50" cy="50" r="38" fill="#EEF2FF" stroke="#6366F1" stroke-width="3"/>
+                                    <!-- Check icon -->
+                                    <path d="M 32 50 L 44 62 L 68 36" stroke="#22C55E" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                                <span class="text-xs font-bold text-indigo-800 bg-indigo-200 px-3 py-1 rounded-full"><i class="fa-solid fa-circle-check mr-1"></i>Amalan Kebersihan Yang Betul</span>
+                            </div>`,
+                        options: [
+                            { text: "Menjemur tuala sehingga kering dan melipatnya", correct: true },
+                            { text: "Membiarkan span mandi kotor dan berbau", correct: false },
+                            { text: "Menggunakan tuala kawan yang kotor", correct: false }
+                        ]
+                    }
+                ]
+            }
+        ];
+
+        function playSound(type) {
+            if (!audioEnabled) return;
+            try {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+
+                if (type === 'correct') {
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(523.25, ctx.currentTime); // C5
+                    osc.frequency.exponentialRampToValueAtTime(659.25, ctx.currentTime + 0.15); // E5
+                    gain.gain.setValueAtTime(0.3, ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
+                    osc.start();
+                    osc.stop(ctx.currentTime + 0.3);
+                } else if (type === 'wrong') {
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(220, ctx.currentTime); // A3
+                    osc.frequency.exponentialRampToValueAtTime(110, ctx.currentTime + 0.2); // A2
+                    gain.gain.setValueAtTime(0.3, ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
+                    osc.start();
+                    osc.stop(ctx.currentTime + 0.3);
+                } else if (type === 'win') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(440, ctx.currentTime);
+                    osc.frequency.setValueAtTime(554.37, ctx.currentTime + 0.1);
+                    osc.frequency.setValueAtTime(659.25, ctx.currentTime + 0.2);
+                    osc.frequency.setValueAtTime(880, ctx.currentTime + 0.3);
+                    gain.gain.setValueAtTime(0.3, ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
+                    osc.start();
+                    osc.stop(ctx.currentTime + 0.5);
+                }
+            } catch (e) {
+                console.log("Audio not supported or allowed.");
+            }
+        }
+
+        function toggleAudio() {
+            audioEnabled = !audioEnabled;
+            const icon = document.getElementById('audio-icon');
+            if (audioEnabled) {
+                icon.className = 'fa-solid fa-volume-high';
+            } else {
+                icon.className = 'fa-solid fa-volume-xmark';
+            }
+        }
+
+        function showScreen(screenId) {
+            const screens = ['screen-register', 'screen-story', 'screen-quiz', 'screen-badge', 'screen-gameover', 'screen-certificate'];
+            screens.forEach(id => {
+                const el = document.getElementById(id);
+                if (id === screenId) {
+                    el.classList.remove('hidden');
+                } else {
+                    el.classList.add('hidden');
+                }
+            });
+        }
+
+        function startGame(e) {
+            e.preventDefault();
+            const name = document.getElementById('student-name').value.trim();
+            const cls = document.getElementById('student-class').value.trim();
+
+            if (!name || !cls) return;
+
+            studentData.name = name;
+            studentData.class = cls;
+
+            // Reset game variables
+            currentLevel = 0;
+            currentQuestionIdx = 0;
+            score = 0;
+            lives = 3;
+
+            renderStoryDashboard();
+            showScreen('screen-story');
+            playSound('win');
+        }
+
+        function renderStoryDashboard() {
+            updateStatusDisplays();
+            
+            const lvl = levels[currentLevel];
+            document.getElementById('story-title').innerText = lvl.title;
+            document.getElementById('story-text').innerText = lvl.story;
+
+            // Render Level Map Buttons
+            const container = document.getElementById('levels-container');
+            container.innerHTML = '';
+
+            levels.forEach((l, index) => {
+                const isCurrent = index === currentLevel;
+                const isPassed = index < currentLevel;
+
+                let cardClass = "p-3 rounded-2xl border-2 flex items-center justify-between transition ";
+                if (isCurrent) {
+                    cardClass += "bg-sky-50 border-sky-400 shadow-md ring-2 ring-sky-200";
+                } else if (isPassed) {
+                    cardClass += "bg-emerald-50 border-emerald-300 opacity-90";
+                } else {
+                    cardClass += "bg-slate-50 border-slate-200 opacity-60";
+                }
+
+                container.innerHTML += `
+                    <div class="${cardClass}">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-xl flex items-center justify-center font-bold text-lg ${isPassed ? 'bg-emerald-500 text-white' : (isCurrent ? 'bg-sky-500 text-white' : 'bg-slate-300 text-slate-600')}">
+                                ${isPassed ? '<i class="fa-solid fa-check"></i>' : index + 1}
+                            </div>
+                            <div class="text-left">
+                                <p class="font-bold text-sm ${isCurrent ? 'text-sky-800' : 'text-slate-700'}">${l.title}</p>
+                                <p class="text-xs text-slate-500">${l.questions.length * 10} Markah • 3 Soalan</p>
+                            </div>
+                        </div>
+                        <div>
+                            ${isPassed ? `<span class="bg-amber-100 text-amber-700 text-xs px-2.5 py-1 rounded-full font-bold flex items-center gap-1"><i class="fa-solid fa-award"></i> Diselesai</span>` : ''}
+                            ${isCurrent ? `<span class="bg-sky-200 text-sky-800 text-xs px-2 py-1 rounded-full font-bold">Aktif</span>` : ''}
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function updateStatusDisplays() {
+            // Hearts
+            let heartsHtml = '';
+            for (let i = 0; i < 3; i++) {
+                if (i < lives) {
+                    heartsHtml += '<i class="fa-solid fa-heart"></i>';
+                } else {
+                    heartsHtml += '<i class="fa-regular fa-heart text-slate-300"></i>';
+                }
+            }
+            document.getElementById('hearts-container').innerHTML = heartsHtml;
+            document.getElementById('quiz-hearts').innerHTML = heartsHtml;
+
+            // Score
+            document.getElementById('score-display').innerText = score;
+            document.getElementById('quiz-score').innerText = score;
+        }
+
+        function startLevelQuiz() {
+            currentQuestionIdx = 0;
+            loadQuestion();
+            showScreen('screen-quiz');
+        }
+
+        function loadQuestion() {
+            updateStatusDisplays();
+            
+            const lvl = levels[currentLevel];
+            const qData = lvl.questions[currentQuestionIdx];
+
+            document.getElementById('quiz-level-badge').innerText = `Tahap ${lvl.id}: ${lvl.title.split(':')[1]}`;
+            document.getElementById('question-number').innerText = `Soalan ${currentQuestionIdx + 1} dari ${lvl.questions.length}`;
+            document.getElementById('question-text').innerText = qData.q;
+            document.getElementById('question-graphic').innerHTML = qData.graphic || '';
+
+            // Hide feedback
+            const fb = document.getElementById('feedback-box');
+            fb.classList.add('hidden');
+
+            // Options
+            const optContainer = document.getElementById('options-container');
+            optContainer.innerHTML = '';
+
+            // Shuffle options for variety
+            const shuffledOptions = [...qData.options].sort(() => Math.random() - 0.5);
+
+            shuffledOptions.forEach((opt) => {
+                const btn = document.createElement('button');
+                btn.className = "w-full text-left p-4 rounded-xl border-2 border-slate-200 hover:border-sky-400 bg-white hover:bg-sky-50 font-semibold text-slate-700 text-base shadow-sm transition active:scale-98 flex items-center justify-between";
+                btn.innerHTML = `
+                    <span>${opt.text}</span>
+                    <i class="fa-regular fa-circle text-slate-300"></i>
+                `;
+                btn.onclick = () => handleAnswer(opt, btn);
+                optContainer.appendChild(btn);
+            });
+        }
+
+        function handleAnswer(selectedOpt, btnElement) {
+            // Disable all option buttons
+            const allBtns = document.getElementById('options-container').querySelectorAll('button');
+            allBtns.forEach(b => b.disabled = true);
+
+            const fb = document.getElementById('feedback-box');
+            fb.classList.remove('hidden', 'bg-emerald-100', 'text-emerald-800', 'bg-red-100', 'text-red-800');
+
+            if (selectedOpt.correct) {
+                // Correct Answer
+                playSound('correct');
+                score += 10;
+                updateStatusDisplays();
+
+                btnElement.className = "w-full text-left p-4 rounded-xl border-2 border-emerald-500 bg-emerald-50 font-bold text-emerald-800 text-base shadow-md flex items-center justify-between";
+                btnElement.querySelector('i').className = "fa-solid fa-circle-check text-emerald-500 text-xl";
+
+                fb.classList.add('bg-emerald-100', 'text-emerald-800');
+                fb.innerHTML = '<i class="fa-solid fa-thumbs-up mr-2"></i>Syabas! Jawapan kamu BETUL! (+10 Markah)';
+
+                setTimeout(() => {
+                    nextQuestionStep();
+                }, 1500);
+
+            } else {
+                // Wrong Answer
+                playSound('wrong');
+                lives -= 1;
+                updateStatusDisplays();
+
+                btnElement.className = "w-full text-left p-4 rounded-xl border-2 border-red-500 bg-red-50 font-bold text-red-800 text-base shadow-md flex items-center justify-between";
+                btnElement.querySelector('i').className = "fa-solid fa-circle-xmark text-red-500 text-xl";
+
+                fb.classList.add('bg-red-100', 'text-red-800');
+                fb.innerHTML = '<i class="fa-solid fa-triangle-exclamation mr-2"></i>Kurang Tepat. Cuba fahami lagi amalan kebersihan!';
+
+                setTimeout(() => {
+                    if (lives <= 0) {
+                        showScreen('screen-gameover');
+                    } else {
+                        nextQuestionStep();
+                    }
+                }, 1600);
+            }
+        }
+
+        function nextQuestionStep() {
+            currentQuestionIdx++;
+            const lvl = levels[currentLevel];
+
+            if (currentQuestionIdx < lvl.questions.length) {
+                loadQuestion();
+            } else {
+                // Completed Level -> Show Badge Award
+                showBadgeAward();
+            }
+        }
+
+        function showBadgeAward() {
+            playSound('win');
+            confetti({ particleCount: 70, spread: 60, origin: { y: 0.6 } });
+
+            const lvl = levels[currentLevel];
+            document.getElementById('badge-name').innerText = lvl.badgeName;
+            
+            const badgeContainer = document.getElementById('badge-icon-container');
+            badgeContainer.innerHTML = `<i class="fa-solid ${lvl.badgeIcon}"></i>`;
+
+            showScreen('screen-badge');
+        }
+
+        function continueAfterBadge() {
+            currentLevel++;
+            if (currentLevel < levels.length) {
+                renderStoryDashboard();
+                showScreen('screen-story');
+            } else {
+                // Completed All Levels -> Show Certificate
+                showCertificate();
+            }
+        }
+
+        function showCertificate() {
+            playSound('win');
+            confetti({ particleCount: 120, spread: 80, origin: { y: 0.5 } });
+
+            document.getElementById('cert-name').innerText = studentData.name.toUpperCase();
+            document.getElementById('cert-class-val').innerText = studentData.class.toUpperCase();
+            document.getElementById('cert-score').innerText = `${score} / 90`;
+
+            const today = new Date();
+            const dateStr = today.getDate().toString().padStart(2, '0') + '/' + 
+                            (today.getMonth() + 1).toString().padStart(2, '0') + '/' + 
+                            today.getFullYear();
+            document.getElementById('cert-date').innerText = dateStr;
+
+            showScreen('screen-certificate');
+        }
+
+        function downloadCertificate() {
+            const certCard = document.getElementById('certificate-card');
+            
+            html2canvas(certCard, { scale: 2 }).then(canvas => {
+                const link = document.createElement('a');
+                link.download = `Sijil_Kebersihan_${studentData.name.replace(/\s+/g, '_')}.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            });
+        }
+
+        function restartGame() {
+            currentLevel = 0;
+            currentQuestionIdx = 0;
+            score = 0;
+            lives = 3;
+            renderStoryDashboard();
+            showScreen('screen-story');
+        }
+
+        window.onload = function() {
+            showScreen('screen-register');
+        };
+    </script>
+</body>
+</html>
